@@ -5,7 +5,7 @@ QEMU = qemu-system-riscv32
 QFLAGS = -nographic -smp 1 -machine virt -bios none
 
 GDB = ${CROSS_COMPILE}gdb
-CC = ${CROSS_COMPILE}gcc
+CC = ${CROSS_COMPILE}g++
 OBJCOPY = ${CROSS_COMPILE}objcopy
 OBJDUMP = ${CROSS_COMPILE}objdump
 
@@ -26,7 +26,7 @@ krv-os.elf: ${OBJS}
 	${CC} $(CFLAGS) -Ttext=0x80000000 -o krv-os.elf $^
 	${OBJCOPY} -O binary krv-os.elf krv-os.bin
 
-%.o : %.c
+%.o : %.cpp
 	${CC} ${CFLAGS} -c -o $@ $<
 
 %.o : %.S

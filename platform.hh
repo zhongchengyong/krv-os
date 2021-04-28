@@ -1,0 +1,8 @@
+#ifndef KRV_OS_PLATFORM_HH
+#define KRV_OS_PLATFORM_HH
+
+#define CORE_NUM 8
+
+#define UART0_ADDR 0X10000000
+
+#endif // KRV_OS_PLATFORM_HH
