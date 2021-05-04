@@ -105,14 +105,14 @@ void uart_init()
     uart_write_reg(LCR, lcr | (3 << 0));
 }
 
-int uart_putc(char ch)
+int uart_putc(const char ch)
 {
     while ((uart_read_reg(LSR) & LSR_TX_IDLE) == 0)
         ;
     return uart_write_reg(THR, ch);
 }
 
-void uart_puts(char *s)
+void uart_puts(const char *s)
 {
     while (*s)
     {
