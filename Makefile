@@ -13,7 +13,8 @@ SRCS_ASM = \
 	start.S \
 
 SRCS_C = \
-	kernel.c \
+	kernel.cpp \
+	uart.cpp \
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)
