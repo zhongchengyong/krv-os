@@ -36,3 +36,4 @@ cmake-build-debug
 cmake-build-release
 .idea
 krv-os.bin
+krv-os.elf
