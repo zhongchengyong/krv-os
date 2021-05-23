@@ -6,7 +6,7 @@ extern "C" {
     uart_init();
     uart_puts("Hello, KRV-OS\n");
     MemoryManager memory_manager;
-    memory_manager.InitPage();
+    memory_manager.PageTest();
     while(1) {}
   }
 }
