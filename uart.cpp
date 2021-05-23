@@ -1,4 +1,6 @@
-#include "platform.h"
+#include "platform.hh"
+#include "os.hh"
+
 #include <cstdint>
 
 /*

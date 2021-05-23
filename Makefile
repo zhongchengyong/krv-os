@@ -11,10 +11,13 @@ OBJDUMP = ${CROSS_COMPILE}objdump
 
 SRCS_ASM = \
 	start.S \
+	mem.S\
 
 SRCS_C = \
 	kernel.cpp \
 	uart.cpp \
+	page.cpp \
+	printf.cpp \
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)
@@ -24,7 +27,7 @@ all: krv-os.elf
 
 # start.o must be the first in dependency!
 krv-os.elf: ${OBJS}
-	${CC} $(CFLAGS) -Ttext=0x80000000 -o krv-os.elf $^
+	${CC} $(CFLAGS) -T os.ld -o krv-os.elf $^
 	${OBJCOPY} -O binary krv-os.elf krv-os.bin
 
 %.o : %.cpp

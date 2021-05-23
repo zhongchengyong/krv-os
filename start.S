@@ -1,4 +1,4 @@
-#include "platform.h"
+#include "platform.hh"
 .global _start
 
 .equ STACK_SIZE, 8192
