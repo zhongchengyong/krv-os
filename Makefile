@@ -11,13 +11,16 @@ OBJDUMP = ${CROSS_COMPILE}objdump
 
 SRCS_ASM = \
 	start.S \
-	mem.S\
+	mem.S \
+	entry.S \
 
 SRCS_C = \
 	kernel.cpp \
 	uart.cpp \
 	page.cpp \
 	printf.cpp \
+	scheduler.cpp \
+	scheduler_test.cpp \
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)

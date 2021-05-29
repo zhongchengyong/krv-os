@@ -47,15 +47,15 @@ void MemoryManager::InitPage() {
  * TODO(zhong): Optimize by a new algorithm.
  * @param npages: Page number to allocate.
  */
-void *MemoryManager::AllocPage(int npages) {
+void *MemoryManager::AllocPage(uint32_t npages) {
   bool found = false;
   Page *search_page = (Page *) HEAP_START;
-  for (int i = 0; i < m_num_pages - npages; ++i) {
+  for (uint32_t i = 0; i < m_num_pages - npages; ++i) {
     if (IsFree(search_page)) {
       found = true;
       Page *page_start = search_page + 1;
       // Find enough continuous pages
-      int j = i + 1;
+      uint32_t j = i + 1;
       for (; j < (i + npages); ++j) {
         if (!IsFree(page_start)) {
           found = false;
@@ -67,7 +67,7 @@ void *MemoryManager::AllocPage(int npages) {
       // Mark flag if found
       if (found) {
         Page *page_target = search_page;
-        for (int k = i; k < (i + npages); ++k) {
+        for (uint32_t k = i; k < (i + npages); ++k) {
           SetFlag(page_target, PAGE_TAKEN);
           ++page_target;
         }
