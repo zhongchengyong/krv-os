@@ -11,7 +11,6 @@ extern void uart_puts(const char *s);
 extern int printf(const char *s, ...);
 extern void panic(char *s);
 
-
 /**
  * Memory managemant
  */

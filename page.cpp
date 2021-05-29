@@ -120,7 +120,7 @@ uint32_t MemoryManager::AlignPage(uint32_t address) {
 void MemoryManager::PageTest() {
   void *p = AllocPage(2);
   printf("p = 0x%x\n", p);
-  printf("p = 0x%x\n", (uint64_t)p >> 32);
+  printf("p = 0x%x\n", (uint64_t) p >> 32);
 
   void *p2 = AllocPage(7);
   printf("p2 = 0x%x\n", p2);
