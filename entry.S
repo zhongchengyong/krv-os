@@ -91,5 +91,32 @@ switch_to:
 	# Do actual context switching
 	ret
 
+.globl trap_vector
+.align 4
+trap_vector:
+	# Save context
+	# csrr t6, mscratch
+	# reg_save t6
+	csrrw	t6, mscratch, t6	# swap t6 and mscratch
+	reg_save t6
+	csrw	mscratch, t6
+
+	# Call the C trap_handler in trap.cpp
+	csrr a0, mepc
+	csrr a1, mcause
+	call trap_handler
+
+	# trap_handler will return the return address via a0
+	csrw mepc, a0
+
+	# Restore context
+	csrr t6, mscratch
+	reg_restore t6
+
+	# Return to the position before trap
+	mret
+
 .end
+
+
 

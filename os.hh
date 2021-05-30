@@ -4,18 +4,17 @@
 #include <cstdarg>
 
 /* uart */
-extern void uart_init();
-extern void uart_puts(const char *s);
+void uart_init();
+void uart_puts(const char *s);
+void uart_isr();
 
 /* printf */
-extern int printf(const char *s, ...);
-extern void panic(char *s);
+int printf(const char *s, ...);
+void panic(char *s);
 
 /**
  * Memory managemant
  */
-
-
 class MemoryManager {
   struct Page;
  public:
@@ -96,3 +95,8 @@ class Scheduler {
   int m_top;  // Mark the max available task position
   int m_current; // Point to the context of current task
 };
+
+
+/* plic */
+int ClaimPLIC(void);
+void CompletePLIC(int irq);

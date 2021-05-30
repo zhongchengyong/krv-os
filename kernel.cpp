@@ -8,6 +8,15 @@ void TestScheduler() {
   uart_puts("Would not go here!\n");
 }
 
+extern void InitTrap();
+extern void InitPLIC();
+
+void TestInt() {
+  InitTrap();
+  InitPLIC();
+}
+
+
 // Use extern "C" compile with C-language calling convention to compatible with assembly file.
 extern "C" {
 void KernelStart() {
@@ -16,7 +25,11 @@ void KernelStart() {
   MemoryManager memory_manager;
   memory_manager.PageTest();
 
+  TestInt();
+
   TestScheduler();
+
+  uart_puts("Not reached....\n");
 
   while (1) {}
 }

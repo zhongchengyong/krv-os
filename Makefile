@@ -21,6 +21,8 @@ SRCS_C = \
 	printf.cpp \
 	scheduler.cpp \
 	scheduler_test.cpp \
+	plic.cpp \
+	trap.cpp \
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)
@@ -50,7 +52,7 @@ debug: all
 	@echo "Press Ctrl-C and then input 'quit' to exit GDB and QEMU"
 	@echo "-------------------------------------------------------"
 	@${QEMU} ${QFLAGS} -kernel krv-os.elf -s -S &
-	@${GDB} krv-os.elf -q -x ../gdbinit
+	@${GDB} krv-os.elf -q
 
 .PHONY : code
 code: all

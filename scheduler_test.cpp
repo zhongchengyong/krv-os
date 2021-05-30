@@ -1,4 +1,5 @@
 #include "os.hh"
+#include "riscv.hh"
 
 #define DELAY 1000
 
