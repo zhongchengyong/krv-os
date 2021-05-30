@@ -1,10 +1,10 @@
-#include "platform.hh"
-#include "os.hh"
-
 #include <cstdint>
 
+#include "os.hh"
+#include "platform.hh"
+
 /*
- * The UART control registers are memory-mapped at address UART0. 
+ * The UART control registers are memory-mapped at address UART0.
  * This macro returns the address of one of the registers.
  */
 #define UART_REG(reg) ((volatile uint8_t *)(UART0 + reg))
@@ -20,18 +20,18 @@
  * 0 (write mode): THR/DLL
  * 1 (write mode): IER/DLM
  */
-#define RHR 0 // Receive Holding Register (read mode)
-#define THR 0 // Transmit Holding Register (write mode)
-#define DLL 0 // LSB of Divisor Latch (write mode)
-#define IER 1 // Interrupt Enable Register (write mode)
-#define DLM 1 // MSB of Divisor Latch (write mode)
-#define FCR 2 // FIFO Control Register (write mode)
-#define ISR 2 // Interrupt Status Register (read mode)
-#define LCR 3 // Line Control Register
-#define MCR 4 // Modem Control Register
-#define LSR 5 // Line Status Register
-#define MSR 6 // Modem Status Register
-#define SPR 7 // ScratchPad Register
+#define RHR 0  // Receive Holding Register (read mode)
+#define THR 0  // Transmit Holding Register (write mode)
+#define DLL 0  // LSB of Divisor Latch (write mode)
+#define IER 1  // Interrupt Enable Register (write mode)
+#define DLM 1  // MSB of Divisor Latch (write mode)
+#define FCR 2  // FIFO Control Register (write mode)
+#define ISR 2  // Interrupt Status Register (read mode)
+#define LCR 3  // Line Control Register
+#define MCR 4  // Modem Control Register
+#define LSR 5  // Line Status Register
+#define MSR 6  // Modem Status Register
+#define SPR 7  // ScratchPad Register
 
 /*
  * POWER UP DEFAULTS
@@ -59,8 +59,9 @@
  * 1 = data has been receive and saved in the receive holding register or FIFO.
  * ......
  * LSR BIT 5:
- * 0 = transmit holding register is full. 16550 will not accept any data for transmission.
- * 1 = transmitter hold register (or FIFO) is empty. CPU can load the next character.
+ * 0 = transmit holding register is full. 16550 will not accept any data for
+ * transmission. 1 = transmitter hold register (or FIFO) is empty. CPU can load
+ * the next character.
  * ......
  */
 #define LSR_RX_READY (1 << 0)
@@ -83,9 +84,9 @@ void uart_init() {
    * open the "divisor latch" by writing 1 into the Divisor Latch Access Bit
    * (DLAB), which is bit index 7 of the Line Control Register (LCR).
    *
-   * Regarding the baud rate value, see [1] "BAUD RATE GENERATOR PROGRAMMING TABLE".
-   * We use 38.4K when 1.8432 MHZ crystal, so the corresponding value is 3.
-   * And due to the divisor register is two bytes (16 bits), so we need to
+   * Regarding the baud rate value, see [1] "BAUD RATE GENERATOR PROGRAMMING
+   * TABLE". We use 38.4K when 1.8432 MHZ crystal, so the corresponding value
+   * is 3. And due to the divisor register is two bytes (16 bits), so we need to
    * split the value of 3(0x0003) into two bytes, DLL stores the low byte,
    * DLM stores the high byte.
    */
@@ -104,10 +105,17 @@ void uart_init() {
    */
   lcr = 0;
   uart_write_reg(LCR, lcr | (3 << 0));
+
+  /*
+   * enable receive interrupts.
+   */
+  uint8_t ier = uart_read_reg(IER);
+  uart_write_reg(IER, ier | (1 << 0));
 }
 
 int uart_putc(const char ch) {
-  while ((uart_read_reg(LSR) & LSR_TX_IDLE) == 0);
+  while ((uart_read_reg(LSR) & LSR_TX_IDLE) == 0)
+    ;
   return uart_write_reg(THR, ch);
 }
 
@@ -120,13 +128,12 @@ void uart_puts(const char *s) {
 /**
  * Get char from RX
  */
-int uart_getc(void)
-{
-	if (uart_read_reg(LSR) & LSR_RX_READY){
-		return uart_read_reg(RHR);
-	} else {
-		return -1;
-	}
+int uart_getc(void) {
+  if (uart_read_reg(LSR) & LSR_RX_READY) {
+    return uart_read_reg(RHR);
+  } else {
+    return -1;
+  }
 }
 
 /**
@@ -135,11 +142,11 @@ int uart_getc(void)
 void uart_isr() {
   while (1) {
     int c = uart_getc();
-	if (c == -1) {
-	  break;
-	} else {
+    if (c == -1) {
+      break;
+    } else {
       uart_putc((char)c);
       uart_putc('\n');
-	}
+    }
   }
 }

@@ -15,8 +15,6 @@ void InitPLIC() {
   write_csr(mie, read_csr(mie) | MIE_MEIE);
   // Enable machine mode global interrupt
   write_csr(mstatus, read_csr(mstatus) | MSTATUS_MIE);
-
-  printf("Init PLIC\n");
 }
 
 /**

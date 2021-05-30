@@ -1,6 +1,6 @@
 #include "os.hh"
-#include "riscv.hh"
 #include "platform.hh"
+#include "riscv.hh"
 
 extern "C" {
 extern void trap_vector();
@@ -8,30 +8,26 @@ extern void trap_vector();
 reg_t trap_handler(reg_t epc, reg_t cause);
 }
 
-void InitTrap() {
-  write_csr(mtvec, (reg_t)trap_vector); 
-  printf("Init trap.....\n");
-}
+void InitTrap() { write_csr(mtvec, (reg_t)trap_vector); }
 
 void ExternalIntHandler() {
-	int irq = ClaimPLIC();
+  int irq = ClaimPLIC();
 
-	if (irq == UART0_IRQ){
-      		uart_isr();
-	} else if (irq) {
-		printf("unexpected interrupt irq = %d\n", irq);
-	}
-	
-	if (irq) {
-		CompletePLIC(irq);
-	}
+  if (irq == UART0_IRQ) {
+    uart_isr();
+  } else if (irq) {
+    printf("unexpected interrupt irq = %d\n", irq);
+  }
+
+  if (irq) {
+    CompletePLIC(irq);
+  }
 }
 
 reg_t trap_handler(reg_t epc, reg_t cause) {
-  uart_puts("In trap handler.\n");
   reg_t ret_pc = epc;
   reg_t cause_code = cause & 0xfff;
-  if (cause & 0x80000000) {
+  if (cause >> 63) {
     switch (cause_code) {
       case 3:
         uart_puts("Software interrupt.\n");
@@ -40,7 +36,7 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
         uart_puts("Timer interrupt.\n");
         break;
       case 11:
-        uart_puts("Timer interrupt.\n");
+        uart_puts("External interrupt.\n");
         ExternalIntHandler();
         break;
       default:
@@ -49,6 +45,7 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
     }
   } else {
     uart_puts("Sync exception.\n");
+    panic("OOPS! What can I do!");
     ret_pc += 4;
   }
   return ret_pc;
