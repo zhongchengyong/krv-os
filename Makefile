@@ -23,6 +23,7 @@ SRCS_C = \
 	scheduler_test.cpp \
 	plic.cpp \
 	trap.cpp \
+	timer.cpp \
 
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)

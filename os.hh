@@ -1,7 +1,7 @@
-#include "types.hh"
-
-#include <cstddef>
 #include <cstdarg>
+#include <cstddef>
+
+#include "types.hh"
 
 /* uart */
 void uart_init();
@@ -17,6 +17,7 @@ void panic(char *s);
  */
 class MemoryManager {
   struct Page;
+
  public:
   MemoryManager() : m_alloc_start{0}, m_alloc_end{0}, m_num_pages{0} {
     InitPage();
@@ -77,26 +78,54 @@ struct context {
   reg_t t6;
 };
 
-#define MAX_TASKS  10
+#define MAX_TASKS 10
 #define STACK_SIZE 1024  // TODO(kode.zhong): Naive implementation now
 
 class Scheduler {
  public:
-  Scheduler() : m_top{0}, m_current{-1} {}
+  static Scheduler& GetInstance() {
+    static Scheduler sched;
+    return sched;
+  }
+  Scheduler(const Scheduler&) = delete;
+  Scheduler& operator=(const Scheduler&) = delete;
+
   static void WriteMscratch(reg_t x);
   void InitSched();
   void Schedule();
   int CreateTask(void (*start)());
   void YieldTask();
   void DelayTask(volatile int count);
+
  private:
+  Scheduler() : m_top{0}, m_current{-1} {}
   uint8_t task_stack[MAX_TASKS][STACK_SIZE];
   struct context ctx_tasks[MAX_TASKS];
-  int m_top;  // Mark the max available task position
-  int m_current; // Point to the context of current task
+  int m_top;      // Mark the max available task position
+  int m_current;  // Point to the context of current task
 };
-
 
 /* plic */
 int ClaimPLIC(void);
 void CompletePLIC(int irq);
+
+/* Timer */
+class Timer {
+ private:
+  uint32_t m_tick = 0;
+  Scheduler& m_sched;
+
+ public:
+  Timer(Scheduler& sched) : m_sched{sched} {}
+  /**
+   * Load timer interrupt
+   */
+  void SetInterval(int interval);
+
+  void InitTimer();
+
+  /**
+   * Set timer interrupt handler
+   */
+  void TimerHandler();
+};

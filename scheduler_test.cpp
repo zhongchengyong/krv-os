@@ -3,9 +3,8 @@
 
 #define DELAY 1000
 
-static Scheduler sched;
-
 void UserTask0(void) {
+  Scheduler& sched = Scheduler::GetInstance();
   uart_puts("Task 0: Created!\n");
   while (1) {
     uart_puts("Task 0: Running...\n");
@@ -15,6 +14,7 @@ void UserTask0(void) {
 }
 
 void UserTask1(void) {
+  Scheduler& sched = Scheduler::GetInstance();
   uart_puts("Task 1: Created!\n");
   while (1) {
     uart_puts("Task 1: Running...\n");
@@ -24,6 +24,7 @@ void UserTask1(void) {
 }
 
 void UserTask2(void) {
+  Scheduler& sched = Scheduler::GetInstance();
   uart_puts("Task 2: Created!\n");
   while (1) {
     uart_puts("Task 2: Running...\n");
@@ -34,7 +35,10 @@ void UserTask2(void) {
 
 /* NOTICE: DON'T LOOP INFINITELY IN main() */
 void MainTask(void) {
+  Scheduler& sched = Scheduler::GetInstance();
   sched.InitSched();
+  Timer timer(sched);
+  timer.InitTimer();
   sched.CreateTask(UserTask0);
   sched.CreateTask(UserTask1);
   sched.CreateTask(UserTask2);
