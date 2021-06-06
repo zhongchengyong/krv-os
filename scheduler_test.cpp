@@ -36,7 +36,7 @@ void UserTask2(void) {
 /* NOTICE: DON'T LOOP INFINITELY IN main() */
 void MainTask(void) {
   int id = read_csr(mhartid);
-  printf("In main task:%d\n", id);
+  uart_puts("Task 0 back to run.\n");
   sched.InitSched();
   sched.CreateTask(UserTask0);
   sched.CreateTask(UserTask1);
