@@ -4,21 +4,25 @@
 
 #define TIMER_INTERVAL CLINT_TIMEBASE_FREQ
 
-void Timer::SetInterval(int interval) {
+extern Scheduler sched;
+
+static uint32_t _tick = 0;
+
+void SetInterval(int interval) {
   int id = read_csr(mhartid);
   *(uint64_t*)CLINT_MTIMECMP(id) = *(uint64_t*)CLINT_MTIME + interval;
 }
 
-void Timer::InitTimer() {
+void InitTimer() {
     SetInterval(TIMER_INTERVAL);
     // Enable MTIE in mis csr
     write_csr(mie, read_csr(mie) | MIE_MTIE);
 }
 
-void Timer::TimerHandler() {
-  ++m_tick;
-  printf("tick: %d\n", m_tick);
+void TimerHandler() {
+  ++_tick;
+  printf("tick: %d\n", _tick);
 
   SetInterval(TIMER_INTERVAL);
-  m_sched.Schedule();
+  sched.Schedule();
 }

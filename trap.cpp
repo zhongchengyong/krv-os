@@ -2,6 +2,8 @@
 #include "platform.hh"
 #include "riscv.hh"
 
+extern Scheduler sched;
+
 extern "C" {
 extern void trap_vector();
 
@@ -27,13 +29,27 @@ void ExternalIntHandler() {
 reg_t trap_handler(reg_t epc, reg_t cause) {
   reg_t ret_pc = epc;
   reg_t cause_code = cause & 0xfff;
+  printf("epc:%d\n", epc);
+  printf("cause:%d\n", cause >> 32);
+  printf("cause:%d\n", cause);
+  printf("cause:%d\n", read_csr(mcause) >> 32);
+  printf("cause:%d\n", read_csr(mcause));
   if (cause >> 63) {
     switch (cause_code) {
-      case 3:
+      case 3: {
         uart_puts("Software interrupt.\n");
+        /*
+         * acknowledge the software interrupt by clearing
+         * the MSIP bit in mip.
+         */
+        int id = read_csr(mhartid);
+        *(uint32_t*)CLINT_MSIP(id) = 0;
+        sched.Schedule();
         break;
+      }
       case 7:
         uart_puts("Timer interrupt.\n");
+        TimerHandler();
         break;
       case 11:
         uart_puts("External interrupt.\n");

@@ -21,22 +21,27 @@
 #define MIE_MSIE (1 << 3)   // software
 
 // Provide a general function to read/write riscv CSR
-#define read_csr(csr) ({\
-  reg_t x; \
-  asm volatile("csrr %0, " #csr : "=r"(x)); \
-  (x); \
-})
+#define read_csr(csr)                         \
+  ({                                          \
+    reg_t x;                                  \
+    asm volatile("csrr %0, " #csr : "=r"(x)); \
+    (x);                                      \
+  })
 
-#define write_csr(csr, value) \
-  asm volatile("csrw " #csr ", %0" : : "r"(value));
+#define write_csr(csr, value) asm volatile("csrw " #csr ", %0" : : "r"(value));
+
+inline reg_t r_mhartid() {
+  reg_t x;
+  asm volatile("csrr %0, mhartid " : "=r"(x));
+  return x;
+}
 
 /**
  * Read thread pointer
  */
-inline reg_t r_tp()
-{
-	reg_t x;
-	asm volatile("mv %0, tp" : "=r" (x) );
-	return x;
+inline reg_t r_tp() {
+  reg_t x;
+  asm volatile("mv %0, tp" : "=r"(x));
+  return x;
 }
 #endif

@@ -75,13 +75,12 @@
 # a0: pointer to the context of the next task
 # TODO(kode.zhong): We do NOT need mscratch operation
 switch_to:
-    csrrw t6, mscratch, t6 # Swap t6 and mscratch to save old context
-	beqz t6, 1f            # The old context maybe null
-	reg_save t6
-
-1:
 	# Switch mscratch to point to the context of the new task
 	csrw mscratch, a0
+
+	# set mepc to pc of the next task
+	ld a1, 248(a0)
+	csrw mepc, a1
 
 	# Restore Registers
 	# Use t6 to point to the context of the new task
@@ -89,7 +88,7 @@ switch_to:
 	reg_restore t6
 
 	# Do actual context switching
-	ret
+	mret
 
 .globl trap_vector
 .align 4
@@ -100,6 +99,10 @@ trap_vector:
 	csrrw	t6, mscratch, t6	# swap t6 and mscratch
 	reg_save t6
 	csrw	mscratch, t6
+
+	# save mepc to context of current task
+	csrr a0, mepc
+	sd a0, 248(t6)
 
 	# Call the C trap_handler in trap.cpp
 	csrr a0, mepc

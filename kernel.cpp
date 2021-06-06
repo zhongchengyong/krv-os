@@ -11,11 +11,6 @@ void TestScheduler() {
 extern void InitTrap();
 extern void InitPLIC();
 
-void TestInt() {
-  InitTrap();
-  InitPLIC();
-}
-
 
 // Use extern "C" compile with C-language calling convention to compatible with assembly file.
 extern "C" {
@@ -25,7 +20,9 @@ void KernelStart() {
   MemoryManager memory_manager;
   memory_manager.PageTest();
 
-  TestInt();
+  InitTrap();
+  InitPLIC();
+  InitTimer();
 
   TestScheduler();
 

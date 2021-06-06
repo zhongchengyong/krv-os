@@ -76,6 +76,9 @@ struct context {
   reg_t t4;
   reg_t t5;
   reg_t t6;
+
+  // Save pc
+  reg_t pc;  // offset: 31 * 8 = 248
 };
 
 #define MAX_TASKS 10
@@ -83,13 +86,7 @@ struct context {
 
 class Scheduler {
  public:
-  static Scheduler& GetInstance() {
-    static Scheduler sched;
-    return sched;
-  }
-  Scheduler(const Scheduler&) = delete;
-  Scheduler& operator=(const Scheduler&) = delete;
-
+  Scheduler() : m_top{0}, m_current{-1} {}
   static void WriteMscratch(reg_t x);
   void InitSched();
   void Schedule();
@@ -97,8 +94,7 @@ class Scheduler {
   void YieldTask();
   void DelayTask(volatile int count);
 
- private:
-  Scheduler() : m_top{0}, m_current{-1} {}
+ public:
   uint8_t task_stack[MAX_TASKS][STACK_SIZE];
   struct context ctx_tasks[MAX_TASKS];
   int m_top;      // Mark the max available task position
@@ -110,22 +106,11 @@ int ClaimPLIC(void);
 void CompletePLIC(int irq);
 
 /* Timer */
-class Timer {
- private:
-  uint32_t m_tick = 0;
-  Scheduler& m_sched;
+void SetInterval(int interval);
 
- public:
-  Timer(Scheduler& sched) : m_sched{sched} {}
-  /**
-   * Load timer interrupt
-   */
-  void SetInterval(int interval);
+void InitTimer();
 
-  void InitTimer();
-
-  /**
-   * Set timer interrupt handler
-   */
-  void TimerHandler();
-};
+/**
+ * Set timer interrupt handler
+ */
+void TimerHandler();
