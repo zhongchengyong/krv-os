@@ -1,4 +1,7 @@
-# Save all register to context
+# save all General-Purpose(GP) registers to context
+# struct context *base = &ctx_task;
+# base->ra = ra;
+# ......
 .macro reg_save base
 	sd ra, 0(\base)
 	sd sp, 8(\base)
@@ -33,7 +36,10 @@
 	sd t6, 240(\base)
 .endm
 
-# Restore registers from the context
+# restore all General-Purpose(GP) registers from the context
+# struct context *base = &ctx_task;
+# ra = base->ra;
+# ......
 .macro reg_restore base
 	ld ra, 0(\base)
 	ld sp, 8(\base)
@@ -68,58 +74,61 @@
 	ld t6, 240(\base)
 .endm
 
+# Something to note about save/restore:
+# - We use mscratch to hold a pointer to context of previous task
+# - We use t6 as the 'base' for reg_save/reg_restore, because it is the
+#   very bottom register (x31) and would not be overwritten during loading.
+
 .text
-.globl switch_to
-.align 4
-# void switch_to(struct context *next);
-# a0: pointer to the context of the next task
-# TODO(kode.zhong): We do NOT need mscratch operation
-switch_to:
-	# Switch mscratch to point to the context of the new task
-	csrw mscratch, a0
 
-	# set mepc to pc of the next task
-	ld a1, 248(a0)
-	csrw mepc, a1
-
-	# Restore Registers
-	# Use t6 to point to the context of the new task
-	mv t6, a0
-	reg_restore t6
-
-	# Do actual context switching
-	mret
-
+# interrupts and exceptions while in machine mode come here.
 .globl trap_vector
+# the trap vector base address must always be aligned on a 4-byte boundary
 .align 4
 trap_vector:
-	# Save context
-	# csrr t6, mscratch
-	# reg_save t6
+	# save context(registers).
 	csrrw	t6, mscratch, t6	# swap t6 and mscratch
 	reg_save t6
 	csrw	mscratch, t6
 
 	# save mepc to context of current task
-	csrr a0, mepc
-	sd a0, 248(t6)
+	csrr	a0, mepc
+	sd	a0, 248(t6)
 
-	# Call the C trap_handler in trap.cpp
-	csrr a0, mepc
-	csrr a1, mcause
-	call trap_handler
+	# call the C trap handler in trap.c
+	csrr	a0, mepc
+	csrr	a1, mcause
+	call	trap_handler
 
-	# trap_handler will return the return address via a0
-	csrw mepc, a0
+	# trap_handler will return the return address via a0.
+	csrw	mepc, a0
 
-	# Restore context
-	csrr t6, mscratch
+	# restore context(registers).
+	csrr	t6, mscratch
 	reg_restore t6
 
-	# Return to the position before trap
+	# return to whatever we were doing before trap.
+	mret
+
+# void switch_to(struct context *next);
+# a0: pointer to the context of the next task
+.globl switch_to
+.align 4
+switch_to:
+	# switch mscratch to point to the context of the next task
+	csrw	mscratch, a0
+	# set mepc to the pc of the next task
+	ld	a1, 248(a0)
+	csrw	mepc, a1
+
+	# Restore all GP registers
+	# Use t6 to point to the context of the new task
+	mv	t6, a0
+	reg_restore t6
+	
+	# Do actual context switching.
+	# Notice this will enable global interrupt
 	mret
 
 .end
-
-
 

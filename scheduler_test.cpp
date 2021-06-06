@@ -9,7 +9,7 @@ extern Scheduler sched;
 
 void UserTask0(void) {
   uart_puts("Task 0: Created!\n");
-  // sched.YieldTask();
+  sched.YieldTask();
   uart_puts("Task 0 back to run.\n");
   while (1) {
     uart_puts("Task 0: Running...\n");

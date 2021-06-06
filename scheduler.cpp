@@ -33,6 +33,7 @@ void Scheduler::Schedule() {
 }
 
 int Scheduler::CreateTask(void (*statr_routine)()) {
+  printf("mtop:%d", m_top);
   if (m_top < MAX_TASKS) {
     // Point to its own top of stack
     ctx_tasks[m_top].sp = (reg_t)&task_stack[m_top][STACK_SIZE - 1];
@@ -46,12 +47,8 @@ int Scheduler::CreateTask(void (*statr_routine)()) {
 
 void Scheduler::YieldTask() {
   /* trigger a machine-level software interrupt */
-  int id1 = 1;
-  printf("YieldTask core id:%d\n", id1);
   // FIXME(zhongcy): Why failed on read mhartid??
-  int id2 = r_mhartid();
-  printf("YieldTask core id:%d\n", id2);
-  // *(uint64_t *)CLINT_MSIP(id) = 1;
+  *(uint64_t *)CLINT_MSIP(0) = 1;
 }
 
 void Scheduler::DelayTask(volatile int count) {
